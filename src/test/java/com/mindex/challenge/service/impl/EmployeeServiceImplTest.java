@@ -40,6 +40,12 @@ public class EmployeeServiceImplTest {
         employeeIdUrl = "http://localhost:" + port + "/employee/{id}";
     }
 
+    /**
+     * todo add separate unit tests
+     * It might be good to break up this into multiple unit tests. We should
+     * ideally be testing failure and success against each endpoint separately, but
+     * it is also good to do an integration test like this.
+     */
     @Test
     public void testCreateReadUpdate() {
         Employee testEmployee = new Employee();
