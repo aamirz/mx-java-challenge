@@ -74,6 +74,8 @@ public class EmployeeServiceImplTest {
                         Employee.class,
                         readEmployee.getEmployeeId()).getBody();
 
+        readEmployee = restTemplate.getForEntity(employeeIdUrl, Employee.class, createdEmployee.getEmployeeId()).getBody();
+
         assertEmployeeEquivalence(readEmployee, updatedEmployee);
     }
 
