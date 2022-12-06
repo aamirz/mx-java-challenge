@@ -1,10 +1,13 @@
 package com.mindex.challenge.service.impl;
 
 import com.mindex.challenge.dao.EmployeeRepository;
+import com.mindex.challenge.data.Compensation;
 import com.mindex.challenge.data.Employee;
 import com.mindex.challenge.data.ReporterData;
 import com.mindex.challenge.data.ReportingStructure;
+import com.mindex.challenge.reponse.CompensationResponse;
 import com.mindex.challenge.service.EmployeeService;
+import jdk.internal.org.jline.utils.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +25,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private EmployeeRepository employeeRepository;
 
     @Override
-    public Employee create(Employee employee) {
+    public Employee createEmployee(Employee employee) {
         LOG.debug("Creating employee [{}]", employee);
 
         employee.setEmployeeId(UUID.randomUUID().toString());
@@ -32,7 +35,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee read(String id) {
+    public Employee readEmployee(String id) {
         LOG.debug("Creating employee with id [{}]", id);
 
         Employee employee = employeeRepository.findByEmployeeId(id);
@@ -45,19 +48,40 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee update(Employee employee) {
+    public Employee updateEmployee(Employee employee) {
         LOG.debug("Updating employee [{}]", employee);
 
         return employeeRepository.save(employee);
     }
 
     @Override
-    public ReportingStructure getReportingStructure(String id) {
+    public ReportingStructure readReportingStructure(String id) {
         LOG.debug("Calculating reporting structure for employeeId: [{}]", id);
-        Employee employee = read(id);
+        Employee employee = readEmployee(id);
         int numberOfReports = calculateReports(employee);
 
         return new ReportingStructure(employee, numberOfReports);
+    }
+
+    @Override
+    public CompensationResponse createCompensation(String id, Compensation compensation) {
+        Log.debug("Updating compensation for Employee id [{}] to [{}] effictive [{}]", id,
+                compensation.getSalary(),
+                compensation.getEffectiveDate());
+       Employee employee = readEmployee(id);
+       employee.setCompensation(compensation);
+
+       employeeRepository.save(employee);
+
+       return new CompensationResponse(compensation, employee);
+    }
+
+    @Override
+    public CompensationResponse readCompensation(String id) {
+        Log.debug("Reading compensation for Employee id [{}]", id);
+        Employee employee = readEmployee(id);
+
+        return new CompensationResponse(employee.getCompensation(), employee);
     }
 
     private int calculateReports(Employee employee) {
@@ -68,7 +92,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         } else {
             int subReports = 0;
             for (ReporterData id : directReports) {
-                Employee reporter = read(id.getEmployeeId());
+                Employee reporter = readEmployee(id.getEmployeeId());
                 subReports += calculateReports(reporter);
             }
             return subReports + directReports.size();
