@@ -122,8 +122,8 @@ public class EmployeeServiceImplTest {
 
     @Test
     public void testSingleReportingLayer() {
-        Employee reportA = createRandomEmployee();
-        Employee reportB = createRandomEmployee();
+        Employee reportA = createEmployeeWithReports(null);
+        Employee reportB = createEmployeeWithReports(null);
         ArrayList<ReporterData> reports = new ArrayList<>();
         ReporterData dataA = new ReporterData(reportA.getEmployeeId());
         ReporterData dataB = new ReporterData(reportB.getEmployeeId());
@@ -138,11 +138,55 @@ public class EmployeeServiceImplTest {
 
         assertEmployeeEquivalence(employeeWithSingleLayer, singleLayerReportingStructure.getEmployee());
         assertEquals(2, singleLayerReportingStructure.getNumberOfReports());
+    }
 
+    @Test
+    public void testMultiReportingLayer() {
+        Employee reportA = createEmployeeWithReports(null);
+        Employee reportB = createEmployeeWithReports(null);
+        ArrayList<ReporterData> reportGrandchildren = new ArrayList<>();
+        ReporterData dataA = new ReporterData(reportA.getEmployeeId());
+        ReporterData dataB = new ReporterData(reportB.getEmployeeId());
+        reportGrandchildren.add(dataA);
+        reportGrandchildren.add(dataB);
+
+        Employee rightReporter = createEmployeeWithReports(reportGrandchildren);
+        Employee leftReporter = createEmployeeWithReports(null);
+        ArrayList<ReporterData> reports = new ArrayList<>();
+        ReporterData dataRight = new ReporterData(rightReporter.getEmployeeId());
+        ReporterData dataLeft = new ReporterData(leftReporter.getEmployeeId());
+        reports.add(dataRight);
+        reports.add(dataLeft);
+
+        Employee boss = createEmployeeWithReports(reports);
+
+        ReportingStructure multiLayerReportingStructure = restTemplate.getForEntity(reportingStructureUrl,
+                ReportingStructure.class,
+                boss.getEmployeeId()).getBody();
+
+        assertEmployeeEquivalence(boss, multiLayerReportingStructure.getEmployee());
+        assertEquals(4, multiLayerReportingStructure.getNumberOfReports());
+    }
+
+    /**
+     * We should also test when things crash / break etc. and we should be handling the 500s gracefully
+     */
+    @Test
+    public void testFailureReadingReportingStructure() {
+        // this case should not bubble up a 500
+        String nonExistentEmployeeId = "random-employee";
+        ReportingStructure multiLayerReportingStructure = restTemplate.getForEntity(reportingStructureUrl,
+                ReportingStructure.class,
+                nonExistentEmployeeId).getBody();
+
+        // I'm actually not sure how to capture this case beacause in PostMan i keep getting a 500 on this
+        // should we be using different testing instrumentation?
+        assertNotNull(multiLayerReportingStructure);
     }
 
     private Employee createEmployeeWithReports(List<ReporterData> reports) {
         Employee testEmployee = new Employee();
+        testEmployee.setEmployeeId(UUID.randomUUID().toString());
         testEmployee.setFirstName("John");
         testEmployee.setLastName("Doe");
         testEmployee.setDepartment("Engineering");
@@ -153,20 +197,6 @@ public class EmployeeServiceImplTest {
         Employee createdEmployee = restTemplate.postForEntity(employeeUrl, testEmployee, Employee.class).getBody();
 
         return createdEmployee;
-    }
-
-    private Employee createRandomEmployee() {
-        Employee testEmployee = new Employee();
-        testEmployee.setEmployeeId(UUID.randomUUID().toString());
-        testEmployee.setFirstName("John");
-        testEmployee.setLastName("Doe");
-        testEmployee.setDepartment("Engineering");
-        testEmployee.setPosition("Developer");
-
-        Employee createdEmployee = restTemplate.postForEntity(employeeUrl, testEmployee, Employee.class).getBody();
-
-        return createdEmployee;
-
     }
 
     private static void assertEmployeeEquivalence(Employee expected, Employee actual) {
