@@ -11,7 +11,8 @@ public class Employee {
     private String lastName;
     private String position;
     private String department;
-    private List<Employee> directReports;
+    // aaz: I refactored the tyep to be List<ReporterData> so that it would be explicit what data was being stored here
+    private List<ReporterData> directReports;
 
     public Employee() {
     }
@@ -56,11 +57,11 @@ public class Employee {
         this.department = department;
     }
 
-    public List<Employee> getDirectReports() {
+    public List<ReporterData> getDirectReports() {
         return directReports;
     }
 
-    public void setDirectReports(List<Employee> directReports) {
+    public void setDirectReports(List<ReporterData> directReports) {
         this.directReports = directReports;
     }
 }
