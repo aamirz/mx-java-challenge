@@ -12,7 +12,11 @@
       {
         "employeeId": "03aa1462-ffa9-4978-901b-7c001562cf6f"
       }
-    ]
+    ],
+    "compensation" : {
+      "salary": 25000.99,
+      "effectiveDate": "12/01/1990"
+    }
   },
   {
     "employeeId" : "b7839309-3348-463b-a7e3-5de1c168beb3",

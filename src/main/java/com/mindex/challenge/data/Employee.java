@@ -13,6 +13,7 @@ public class Employee {
     private String department;
     // aaz: I refactored the tyep to be List<ReporterData> so that it would be explicit what data was being stored here
     private List<ReporterData> directReports;
+    private Compensation compensation;
 
     public Employee() {
     }
@@ -64,4 +65,8 @@ public class Employee {
     public void setDirectReports(List<ReporterData> directReports) {
         this.directReports = directReports;
     }
+
+    public Compensation getCompensation() { return compensation; }
+
+    public void setCompensation(Compensation compensation) { this.compensation = compensation; }
 }
