@@ -4,8 +4,8 @@ import com.mindex.challenge.data.Compensation;
 import com.mindex.challenge.data.Employee;
 import com.mindex.challenge.data.ReporterData;
 import com.mindex.challenge.data.ReportingStructure;
-import com.mindex.challenge.reponse.CompensationResponse;
-import com.mindex.challenge.reponse.EmployeeResponse;
+import com.mindex.challenge.model.CompensationModel;
+import com.mindex.challenge.model.EmployeeModel;
 import com.mindex.challenge.service.EmployeeService;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,14 +69,14 @@ public class EmployeeServiceImplTest {
         testEmployee.setPosition("Developer");
 
         // Create checks
-        Employee createdEmployee = restTemplate.postForEntity(employeeUrl, testEmployee, Employee.class).getBody();
+        EmployeeModel createdEmployee = restTemplate.postForEntity(employeeUrl, testEmployee, EmployeeModel.class).getBody();
 
         assertNotNull(createdEmployee.getEmployeeId());
-        assertEmployeeEquivalence(testEmployee, createdEmployee);
+        assertEmployeeEquivalence(new EmployeeModel(testEmployee), createdEmployee);
 
 
         // Read checks
-        Employee readEmployee = restTemplate.getForEntity(employeeIdUrl, Employee.class, createdEmployee.getEmployeeId()).getBody();
+        EmployeeModel readEmployee = restTemplate.getForEntity(employeeIdUrl, EmployeeModel.class, createdEmployee.getEmployeeId()).getBody();
         assertEquals(createdEmployee.getEmployeeId(), readEmployee.getEmployeeId());
         assertEmployeeEquivalence(createdEmployee, readEmployee);
 
@@ -87,14 +87,14 @@ public class EmployeeServiceImplTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        Employee updatedEmployee =
+        EmployeeModel updatedEmployee =
                 restTemplate.exchange(employeeIdUrl,
                         HttpMethod.PUT,
-                        new HttpEntity<Employee>(readEmployee, headers),
-                        Employee.class,
+                        new HttpEntity<>(readEmployee, headers),
+                        EmployeeModel.class,
                         readEmployee.getEmployeeId()).getBody();
 
-        readEmployee = restTemplate.getForEntity(employeeIdUrl, Employee.class, createdEmployee.getEmployeeId()).getBody();
+        readEmployee = restTemplate.getForEntity(employeeIdUrl, EmployeeModel.class, createdEmployee.getEmployeeId()).getBody();
 
         assertEmployeeEquivalence(readEmployee, updatedEmployee);
     }
@@ -105,7 +105,7 @@ public class EmployeeServiceImplTest {
     @Test
     public void testReportingStructureEmpty() {
         // test null case
-        Employee nullDirectReportsEmployee = createEmployeeWithReports(null);
+        EmployeeModel nullDirectReportsEmployee = createEmployeeWithReports(null);
 
         ReportingStructure nullReportingStructure = restTemplate.getForEntity(reportingStructureUrl,
                 ReportingStructure.class,
@@ -115,7 +115,7 @@ public class EmployeeServiceImplTest {
         assertEquals(0, nullReportingStructure.getNumberOfReports());
 
         // test empty case
-       Employee noDirectReportsEmployee = createEmployeeWithReports(new ArrayList<ReporterData>());
+        EmployeeModel noDirectReportsEmployee = createEmployeeWithReports(new ArrayList<ReporterData>());
 
        ReportingStructure emptyReportingStructure = restTemplate.getForEntity(reportingStructureUrl,
                ReportingStructure.class,
@@ -127,15 +127,15 @@ public class EmployeeServiceImplTest {
 
     @Test
     public void testSingleReportingLayer() {
-        Employee reportA = createEmployeeWithReports(null);
-        Employee reportB = createEmployeeWithReports(null);
+        EmployeeModel reportA = createEmployeeWithReports(null);
+        EmployeeModel reportB = createEmployeeWithReports(null);
         ArrayList<ReporterData> reports = new ArrayList<>();
         ReporterData dataA = new ReporterData(reportA.getEmployeeId());
         ReporterData dataB = new ReporterData(reportB.getEmployeeId());
         reports.add(dataA);
         reports.add(dataB);
 
-        Employee employeeWithSingleLayer = createEmployeeWithReports(reports);
+        EmployeeModel employeeWithSingleLayer = createEmployeeWithReports(reports);
 
         ReportingStructure singleLayerReportingStructure = restTemplate.getForEntity(reportingStructureUrl,
                 ReportingStructure.class,
@@ -147,23 +147,23 @@ public class EmployeeServiceImplTest {
 
     @Test
     public void testMultiReportingLayer() {
-        Employee reportA = createEmployeeWithReports(null);
-        Employee reportB = createEmployeeWithReports(null);
+        EmployeeModel reportA = createEmployeeWithReports(null);
+        EmployeeModel reportB = createEmployeeWithReports(null);
         ArrayList<ReporterData> reportGrandchildren = new ArrayList<>();
         ReporterData dataA = new ReporterData(reportA.getEmployeeId());
         ReporterData dataB = new ReporterData(reportB.getEmployeeId());
         reportGrandchildren.add(dataA);
         reportGrandchildren.add(dataB);
 
-        Employee rightReporter = createEmployeeWithReports(reportGrandchildren);
-        Employee leftReporter = createEmployeeWithReports(null);
+        EmployeeModel rightReporter = createEmployeeWithReports(reportGrandchildren);
+        EmployeeModel leftReporter = createEmployeeWithReports(null);
         ArrayList<ReporterData> reports = new ArrayList<>();
         ReporterData dataRight = new ReporterData(rightReporter.getEmployeeId());
         ReporterData dataLeft = new ReporterData(leftReporter.getEmployeeId());
         reports.add(dataRight);
         reports.add(dataLeft);
 
-        Employee boss = createEmployeeWithReports(reports);
+        EmployeeModel boss = createEmployeeWithReports(reports);
 
         ReportingStructure multiLayerReportingStructure = restTemplate.getForEntity(reportingStructureUrl,
                 ReportingStructure.class,
@@ -194,41 +194,40 @@ public class EmployeeServiceImplTest {
      */
     @Test
     public void testCompensationCRUD() {
-       Employee employee = createEmployeeWithReports(null);
+        EmployeeModel employeeModel = createEmployeeWithReports(null);
 
         Double salary = Math.abs(new Random().nextDouble());
         LocalDate date = LocalDate.now();
         Compensation compensation = new Compensation(salary, date);
        // create and read compensation
-        CompensationResponse createCompensationResponse = restTemplate.postForEntity(
+        CompensationModel createCompensationResponse = restTemplate.postForEntity(
                 compensationURL,
                 compensation,
-                CompensationResponse.class,
-                employee.getEmployeeId()
+                CompensationModel.class,
+                employeeModel.getEmployeeId()
         ).getBody();
 
 
-        EmployeeResponse employeeResponse = new EmployeeResponse(employee);
-        assertEmployeeEquivalence(employeeResponse, createCompensationResponse.getEmployee());
+        assertEmployeeEquivalence(employeeModel, createCompensationResponse.getEmployee());
         assertEquals(salary, createCompensationResponse.getSalary());
         assertEquals(date, createCompensationResponse.getEffectiveDate());
 
 
         // test reading
-        CompensationResponse readCompensationResponse = restTemplate.getForEntity(
+        CompensationModel readCompensationResponse = restTemplate.getForEntity(
                 compensationURL,
-                CompensationResponse.class,
-                employee.getEmployeeId()
+                CompensationModel.class,
+                employeeModel.getEmployeeId()
         ).getBody();
 
-        assertEmployeeEquivalence(employeeResponse, readCompensationResponse.getEmployee());
+        assertEmployeeEquivalence(employeeModel, readCompensationResponse.getEmployee());
         assertEquals(salary, readCompensationResponse.getSalary());
         assertEquals(date, readCompensationResponse.getEffectiveDate());
 
     }
 
-    private Employee createEmployeeWithReports(List<ReporterData> reports) {
-        Employee testEmployee = new Employee();
+    private EmployeeModel createEmployeeWithReports(List<ReporterData> reports) {
+        EmployeeModel testEmployee = new EmployeeModel();
         testEmployee.setEmployeeId(UUID.randomUUID().toString());
         testEmployee.setFirstName("John");
         testEmployee.setLastName("Doe");
@@ -237,19 +236,12 @@ public class EmployeeServiceImplTest {
         testEmployee.setDirectReports(reports);
 
         // Create checks
-        Employee createdEmployee = restTemplate.postForEntity(employeeUrl, testEmployee, Employee.class).getBody();
+        EmployeeModel createdEmployee = restTemplate.postForEntity(employeeUrl, testEmployee, EmployeeModel.class).getBody();
 
         return createdEmployee;
     }
 
-    private static void assertEmployeeEquivalence(Employee expected, Employee actual) {
-        assertEquals(expected.getFirstName(), actual.getFirstName());
-        assertEquals(expected.getLastName(), actual.getLastName());
-        assertEquals(expected.getDepartment(), actual.getDepartment());
-        assertEquals(expected.getPosition(), actual.getPosition());
-    }
-
-    private static void assertEmployeeEquivalence(EmployeeResponse expected, EmployeeResponse actual) {
+    private static void assertEmployeeEquivalence(EmployeeModel expected, EmployeeModel actual) {
         assertEquals(expected.getFirstName(), actual.getFirstName());
         assertEquals(expected.getLastName(), actual.getLastName());
         assertEquals(expected.getDepartment(), actual.getDepartment());

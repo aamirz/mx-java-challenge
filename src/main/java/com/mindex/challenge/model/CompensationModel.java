@@ -1,6 +1,5 @@
-package com.mindex.challenge.reponse;
+package com.mindex.challenge.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mindex.challenge.data.Compensation;
 import com.mindex.challenge.data.Employee;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -11,22 +10,22 @@ import java.time.LocalDate;
  * CompensationModel provides a REST layer abstraction to hide
  * the backing Compensation data class.
  */
-public class CompensationResponse {
-    private EmployeeResponse employee;
+public class CompensationModel {
+    private EmployeeModel employee;
     private Double salary;
 
     @DateTimeFormat(pattern = "yyyy-dd-mm")
     private LocalDate effectiveDate;
 
-    public CompensationResponse() {}
+    public CompensationModel() {}
 
-    public CompensationResponse(Compensation compensation, Employee employee) {
-        this.employee = new EmployeeResponse(employee);
+    public CompensationModel(Compensation compensation, Employee employee) {
+        this.employee = new EmployeeModel(employee);
         this.salary = compensation.getSalary();
         this.effectiveDate = compensation.getEffectiveDate();
     }
 
-    public CompensationResponse(Double salary, LocalDate effectiveDate, EmployeeResponse employee) {
+    public CompensationModel(Double salary, LocalDate effectiveDate, EmployeeModel employee) {
         this.salary = salary;
         this.effectiveDate = effectiveDate;
         this.employee = employee;
@@ -40,7 +39,7 @@ public class CompensationResponse {
 
     public void setEffectiveDate(LocalDate effectiveDate) { this.effectiveDate = effectiveDate; }
 
-    public EmployeeResponse getEmployee() { return employee; }
+    public EmployeeModel getEmployee() { return employee; }
 
-    public void setEmployee(EmployeeResponse employee) { this.employee = employee; }
+    public void setEmployee(EmployeeModel employee) { this.employee = employee; }
 }

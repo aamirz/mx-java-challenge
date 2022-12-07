@@ -5,7 +5,8 @@ import com.mindex.challenge.data.Compensation;
 import com.mindex.challenge.data.Employee;
 import com.mindex.challenge.data.ReporterData;
 import com.mindex.challenge.data.ReportingStructure;
-import com.mindex.challenge.reponse.CompensationResponse;
+import com.mindex.challenge.model.CompensationModel;
+import com.mindex.challenge.model.EmployeeModel;
 import com.mindex.challenge.service.EmployeeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,11 +60,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = readEmployee(id);
         int numberOfReports = calculateReports(employee);
 
-        return new ReportingStructure(employee, numberOfReports);
+        return new ReportingStructure(new EmployeeModel(employee), numberOfReports);
     }
 
     @Override
-    public CompensationResponse createCompensation(String id, Compensation compensation) {
+    public CompensationModel createCompensation(String id, Compensation compensation) {
         LOG.debug("Updating compensation for Employee id [{}] to [{}] effictive [{}]", id,
                 compensation.getSalary(),
                 compensation.getEffectiveDate());
@@ -72,15 +73,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
        employeeRepository.save(employee);
 
-       return new CompensationResponse(compensation, employee);
+       return new CompensationModel(compensation, employee);
     }
 
     @Override
-    public CompensationResponse readCompensation(String id) {
+    public CompensationModel readCompensation(String id) {
         LOG.debug("Reading compensation for Employee id [{}]", id);
         Employee employee = readEmployee(id);
 
-        return new CompensationResponse(employee.getCompensation(), employee);
+        return new CompensationModel(employee.getCompensation(), employee);
     }
 
     private int calculateReports(Employee employee) {

@@ -1,4 +1,4 @@
-package com.mindex.challenge.reponse;
+package com.mindex.challenge.model;
 
 import com.mindex.challenge.data.Employee;
 import com.mindex.challenge.data.ReporterData;
@@ -9,7 +9,7 @@ import java.util.List;
  * EmployeeModel provides a REST layer abstraction to hide
  * the way we are storing data in mongo with the backing Employee class.
  */
-public class EmployeeResponse {
+public class EmployeeModel {
     private String employeeId;
     private String firstName;
     private String lastName;
@@ -17,10 +17,10 @@ public class EmployeeResponse {
     private String department;
     private List<ReporterData> directReports;
 
-    public EmployeeResponse() {
+    public EmployeeModel() {
     }
 
-    public EmployeeResponse(Employee employee) {
+    public EmployeeModel(Employee employee) {
        this.employeeId = employee.getEmployeeId();
        this.firstName = employee.getFirstName();
        this.lastName = employee.getLastName();
