@@ -77,10 +77,103 @@ This new type should have a new REST endpoint created for it. This new endpoint 
 the fully filled out ReportingStructure for the specified employeeId. The values should be computed on the fly and will 
 not be persisted.
 
+## Solution 
+
+For this task, I implemented a get endpoint with the following signature: 
+
+```
+* READ
+    * HTTP Method: GET 
+    * URL: localhost:8080/reportingStructure/{id}
+    * RESPONSE: ReportingStructure 
+    * NOTE: id is a String employee id
+```
+
+Where ReportingStructure looks like this:
+
+```json
+{
+  "type": "ReportingStructure",
+  "employeeId": {
+    "type": "string"
+  },
+  "numberOfReports": {
+    "type": "int"
+  }
+}
+
+```
+
+As I wrote code and learned more about Spring Boot I realized I could have done some good refactoring. Here are some 
+refactors I would do if I had more time: 
+
+- separate all the response / request models from the data model classes we are storing in Mongo. I'm still not satisfied with how these classes are structured. 
+- make it so that there is a separate test sutie for the Controller that exercises REST failure cases 
+- make it so that EmployeeServiceImpl has unit tests against each unit within the service interface and have the tests key off the interface (so we get free tests for each implmenting class)
+  - test failure cases in EmployeeServiceImpl with the EmployeeRepository mocked for success / failure
+
+^ with the current testing infrastructure we really have integration tests and we need a better separation of 
+responsibilities to make these pure unit tests. 
+
 ### Task 2
 Create a new type, Compensation. A Compensation has the following fields: employee, salary, and effectiveDate. Create 
 two new Compensation REST endpoints. One to create and one to read by employeeId. These should persist and query the 
 Compensation from the persistence layer.
+
+## Solution 
+
+For Task 2 I implemented create and read enpoints with the following signatures: 
+
+```
+* CREATE
+    * HTTP Method: POST 
+    * URL: localhost:8080/compensation/{id}
+    * PAYLOAD: Compensation
+    * RESPONSE: CompensationModel 
+* READ
+    * HTTP Method: GET 
+    * URL: localhost:8080/compensation/{id}
+    * RESPONSE: CompensationModel 
+```
+
+Where Compensation is specified by: 
+
+```json
+{
+  "type": "Compensation",
+  "compensation": {
+    "type": "double"
+  },
+  "effectiveDate": {
+    "type": "LocalDateTime",
+    "format": "yyyy-mm-dd"
+  }
+}
+```
+
+and CompensationModel is specified by: 
+
+```json
+{
+  "type": "CompensationModel",
+  "employee": {
+    "type": "EmployeeModel"
+  },
+  "compensation": {
+    "type": "double"
+  },
+  "effectiveDate": {
+    "type": "LocalDateTime",
+    "format": "yyyy-mm-dd"
+  }
+}
+```
+
+In this solution I did a little refactoring to separate types we were responding with from types used to represent 
+persisted data. It seemed like since we are using Mongo, the optimal solution would be to nest compensation on the 
+Employee itself, since it is information who's lifecycle is a subset of the Employee's lifecycle. I still would like 
+to refactor this code so that there is a better separation here and not so many copied fields...
+
 
 ## Delivery
 Please upload your results to a publicly accessible Git repo. Free ones are provided by Github and Bitbucket.
