@@ -208,11 +208,22 @@ public class EmployeeServiceImplTest {
         ).getBody();
 
 
-        assertEmployeeEquivalence(new EmployeeResponse(employee), createCompensationResponse.getEmployee());
+        EmployeeResponse employeeResponse = new EmployeeResponse(employee);
+        assertEmployeeEquivalence(employeeResponse, createCompensationResponse.getEmployee());
         assertEquals(salary, createCompensationResponse.getSalary());
         assertEquals(date, createCompensationResponse.getEffectiveDate());
 
 
+        // test reading
+        CompensationResponse readCompensationResponse = restTemplate.getForEntity(
+                compensationURL,
+                CompensationResponse.class,
+                employee.getEmployeeId()
+        ).getBody();
+
+        assertEmployeeEquivalence(employeeResponse, readCompensationResponse.getEmployee());
+        assertEquals(salary, readCompensationResponse.getSalary());
+        assertEquals(date, readCompensationResponse.getEffectiveDate());
 
     }
 
