@@ -7,7 +7,6 @@ import com.mindex.challenge.data.ReporterData;
 import com.mindex.challenge.data.ReportingStructure;
 import com.mindex.challenge.reponse.CompensationResponse;
 import com.mindex.challenge.service.EmployeeService;
-import jdk.internal.org.jline.utils.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +64,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public CompensationResponse createCompensation(String id, Compensation compensation) {
-        Log.debug("Updating compensation for Employee id [{}] to [{}] effictive [{}]", id,
+        LOG.debug("Updating compensation for Employee id [{}] to [{}] effictive [{}]", id,
                 compensation.getSalary(),
                 compensation.getEffectiveDate());
        Employee employee = readEmployee(id);
@@ -78,7 +77,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public CompensationResponse readCompensation(String id) {
-        Log.debug("Reading compensation for Employee id [{}]", id);
+        LOG.debug("Reading compensation for Employee id [{}]", id);
         Employee employee = readEmployee(id);
 
         return new CompensationResponse(employee.getCompensation(), employee);

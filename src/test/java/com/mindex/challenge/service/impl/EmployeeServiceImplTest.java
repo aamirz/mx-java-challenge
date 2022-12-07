@@ -1,8 +1,11 @@
 package com.mindex.challenge.service.impl;
 
+import com.mindex.challenge.data.Compensation;
 import com.mindex.challenge.data.Employee;
 import com.mindex.challenge.data.ReporterData;
 import com.mindex.challenge.data.ReportingStructure;
+import com.mindex.challenge.reponse.CompensationResponse;
+import com.mindex.challenge.reponse.EmployeeResponse;
 import com.mindex.challenge.service.EmployeeService;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,16 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -32,6 +30,7 @@ public class EmployeeServiceImplTest {
     private String employeeUrl;
     private String employeeIdUrl;
     private String reportingStructureUrl;
+    private String compensationURL;
 
     @Autowired
     private EmployeeService employeeService;
@@ -47,6 +46,7 @@ public class EmployeeServiceImplTest {
         employeeUrl = "http://localhost:" + port + "/employee";
         employeeIdUrl = "http://localhost:" + port + "/employee/{id}";
         reportingStructureUrl = "http://localhost:" + port + "/reportingStructure/{id}";
+        compensationURL = "http://localhost:" + port + "/compensation/{id}";
     }
 
     /**
@@ -54,6 +54,11 @@ public class EmployeeServiceImplTest {
      * It might be good to break up this into multiple unit tests. We should
      * ideally be testing failure and success against each endpoint separately, but
      * it is also good to do an integration test like this.
+     *
+     * I'm also wondering if we should be mocking the employeeService here so that we can better control
+     * the test and really only excercise the controller. I think a better pattern would be to make a new
+     * suite of tests for the controller and unit test only the employeeService with a mocked repository.
+     * I wanted to refactor this code and make all these changes but didn't do so in the interest of time.
      */
     @Test
     public void testCreateReadUpdate() {
@@ -179,9 +184,36 @@ public class EmployeeServiceImplTest {
                 ReportingStructure.class,
                 nonExistentEmployeeId).getBody();
 
-        // I'm actually not sure how to capture this case beacause in PostMan i keep getting a 500 on this
-        // should we be using different testing instrumentation?
+        // I'm actually not sure how to capture this case beacause in PostMan, when I test manually I keep getting a 500 on this
+        // should we be using different testing instrumentation? I don't know if I'm fully understaing the restTemplate
         assertNotNull(multiLayerReportingStructure);
+    }
+
+    /**
+     * Round trip the compenastion.
+     */
+    @Test
+    public void testCompensationCRUD() {
+       Employee employee = createEmployeeWithReports(null);
+
+        Double salary = Math.abs(new Random().nextDouble());
+        LocalDate date = LocalDate.now();
+        Compensation compensation = new Compensation(salary, date);
+       // create and read compensation
+        CompensationResponse createCompensationResponse = restTemplate.postForEntity(
+                compensationURL,
+                compensation,
+                CompensationResponse.class,
+                employee.getEmployeeId()
+        ).getBody();
+
+
+        assertEmployeeEquivalence(new EmployeeResponse(employee), createCompensationResponse.getEmployee());
+        assertEquals(salary, createCompensationResponse.getSalary());
+        assertEquals(date, createCompensationResponse.getEffectiveDate());
+
+
+
     }
 
     private Employee createEmployeeWithReports(List<ReporterData> reports) {
@@ -200,6 +232,13 @@ public class EmployeeServiceImplTest {
     }
 
     private static void assertEmployeeEquivalence(Employee expected, Employee actual) {
+        assertEquals(expected.getFirstName(), actual.getFirstName());
+        assertEquals(expected.getLastName(), actual.getLastName());
+        assertEquals(expected.getDepartment(), actual.getDepartment());
+        assertEquals(expected.getPosition(), actual.getPosition());
+    }
+
+    private static void assertEmployeeEquivalence(EmployeeResponse expected, EmployeeResponse actual) {
         assertEquals(expected.getFirstName(), actual.getFirstName());
         assertEquals(expected.getLastName(), actual.getLastName());
         assertEquals(expected.getDepartment(), actual.getDepartment());

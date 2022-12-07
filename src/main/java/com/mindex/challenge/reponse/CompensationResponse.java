@@ -3,8 +3,9 @@ package com.mindex.challenge.reponse;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mindex.challenge.data.Compensation;
 import com.mindex.challenge.data.Employee;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * CompensationModel provides a REST layer abstraction to hide
@@ -14,8 +15,8 @@ public class CompensationResponse {
     private EmployeeResponse employee;
     private Double salary;
 
-    @JsonFormat(pattern = "mm/dd/yyyy")
-    private Date effectiveDate;
+    @DateTimeFormat(pattern = "yyyy-dd-mm")
+    private LocalDate effectiveDate;
 
     public CompensationResponse() {}
 
@@ -25,7 +26,7 @@ public class CompensationResponse {
         this.effectiveDate = compensation.getEffectiveDate();
     }
 
-    public CompensationResponse(Double salary, Date effectiveDate, EmployeeResponse employee) {
+    public CompensationResponse(Double salary, LocalDate effectiveDate, EmployeeResponse employee) {
         this.salary = salary;
         this.effectiveDate = effectiveDate;
         this.employee = employee;
@@ -35,9 +36,9 @@ public class CompensationResponse {
 
     public void setSalary(Double salary) { this.salary = salary; }
 
-    public Date getEffectiveDate() { return effectiveDate; }
+    public LocalDate getEffectiveDate() { return effectiveDate; }
 
-    public void setEffectiveDate(Date effectiveDate) { this.effectiveDate = effectiveDate; }
+    public void setEffectiveDate(LocalDate effectiveDate) { this.effectiveDate = effectiveDate; }
 
     public EmployeeResponse getEmployee() { return employee; }
 

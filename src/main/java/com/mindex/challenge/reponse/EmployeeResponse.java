@@ -15,7 +15,6 @@ public class EmployeeResponse {
     private String lastName;
     private String position;
     private String department;
-    // aaz: I refactored the tyep to be List<ReporterData> so that it would be explicit what data was being stored here
     private List<ReporterData> directReports;
 
     public EmployeeResponse() {

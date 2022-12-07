@@ -11,7 +11,7 @@ public class Employee {
     private String lastName;
     private String position;
     private String department;
-    // aaz: I refactored the tyep to be List<ReporterData> so that it would be explicit what data was being stored here
+    // aaz: I refactored the type to be List<ReporterData> so that it would be explicit what data was being stored here
     private List<ReporterData> directReports;
     private Compensation compensation;
 
