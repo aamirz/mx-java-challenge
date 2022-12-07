@@ -77,9 +77,9 @@ This new type should have a new REST endpoint created for it. This new endpoint 
 the fully filled out ReportingStructure for the specified employeeId. The values should be computed on the fly and will 
 not be persisted.
 
-### Solution 
+### Solution 1
 
-For this task, I implemented a get endpoint with the following signature: 
+For task 1, I implemented a get endpoint with the following signature: 
 
 ```
 * READ
@@ -120,7 +120,7 @@ Create a new type, Compensation. A Compensation has the following fields: employ
 two new Compensation REST endpoints. One to create and one to read by employeeId. These should persist and query the 
 Compensation from the persistence layer.
 
-### Solution 
+### Solution 2
 
 For Task 2 I implemented create and read enpoints with the following signatures: 
 
